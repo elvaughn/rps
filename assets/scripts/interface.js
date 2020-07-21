@@ -10,7 +10,7 @@ headerH1 = document.querySelector('.header__h1')
 
 // Load Audio
 
-const tickSound = new Audio('/assets/sounds/tick.wav')
-const winSound = new Audio('/assets/sounds/win.wav')
-const drawSound = new Audio('/assets/sounds/draw.wav')
-const loseSound = new Audio('/assets/sounds/loss.wav')
+const tickSound = new Audio('assets/sounds/tick.wav')
+const winSound = new Audio('assets/sounds/win.wav')
+const drawSound = new Audio('assets/sounds/draw.wav')
+const loseSound = new Audio('assets/sounds/loss.wav')
