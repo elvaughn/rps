@@ -1,0 +1,163 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+}
+
+body {
+    position: relative;
+}
+
+.header {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -5%);
+    z-index: 3;
+    transition: all 0.25s ease;
+}
+
+.header--mini {
+    top: 3%;
+    left: 85% !important;
+}
+
+.header__h1 {
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 300;
+    transition: all 0.25s ease;
+}
+
+.header__h1--mini {
+    font-size: 1.2rem;
+}
+
+.header__h1::after {
+    content: "";
+    display: block;
+    width: 60%;
+    border-bottom: 3px solid #ff7f50;
+    margin: 5px auto 0;
+}
+.content {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.content__column {
+    display: inline-block;
+    width: 50%;
+    height: 100%;
+}
+.player-section {
+    position: relative;
+}
+
+.player-section, .player-card__inner {
+    height: 100%;
+    width: 100%;
+}
+
+.player-section__hp {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    transition: all 0.25s ease;
+}
+.player-section__hp--3 {
+    height: 100%;
+    background-color: #2ed573;
+}
+
+.player-section__hp--2 {
+    height: 100%;
+    background-color: #eccc68;
+}
+
+.player-section__hp--1 {
+    height: 100%;
+    background-color: #ff4757;
+}
+.player-section__name {
+    position: absolute;
+    display: block;
+    top: 21%;
+    left: 50%;
+    transform: translate(-50%, -21%);
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+}
+
+.player-card {
+    display: block;
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -65%);
+    width: 350px;
+    height: 400px;
+    background: #fff;
+    border: 1px solid lightgrey;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: all 0.25s ease;
+}
+
+.player-card:hover {
+    top: 64.8%;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.player-card__inner {
+    position: relative;
+}
+
+.player-card__inner__img {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.25s ease;
+}
+
+.player-card__inner__img--flipped {
+    -webkit-transform: scaleX(-1);
+    transform: translateY(-50%) scaleX(-1);
+}
+
+.player-card__inner__img--flare {
+    top: 55%;
+}
+
+
+
+.menu__list {
+    width: 150px;
+    height: 200px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    list-style: none;
+    text-align: center;
+}
+
+.menu__list__item {
+    text-transform: uppercase;
+    font-size: 1.5rem;
+}
+.menu__list__item:not(:last-child) {
+    margin-bottom: 1rem;
+}
