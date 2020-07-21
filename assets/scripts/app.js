@@ -66,8 +66,8 @@ const newRound = () => {
   };
   
   const resetImgs = () => {
-    playerImg.src = `/assets/images/rock.png`;
-    botImg.src = `/assets/images/rock.png`;
+    playerImg.src = `assets/images/rock.png`;
+    botImg.src = `assets/images/rock.png`;
   };
 
 // GAME EVENTS
@@ -132,8 +132,8 @@ const assessChoices = () => {
 
   botChoice = randomChoice();
 
-  playerImg.src = `/assets/images/${playerChoice.toLowerCase()}.png`;
-  botImg.src = `/assets/images/${botChoice.toLowerCase()}.png`;
+  playerImg.src = `assets/images/${playerChoice.toLowerCase()}.png`;
+  botImg.src = `assets/images/${botChoice.toLowerCase()}.png`;
 
   if (
     (playerChoice === ROCK_CHOICE && botChoice === SCISSORS_CHOICE) ||
