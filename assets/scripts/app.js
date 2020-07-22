@@ -1,7 +1,4 @@
 /**
- * * INFO MODAL
- * * SCORE
- * * SCORE MULTIPLIER
  * * GAME OVER
  */
 
@@ -21,6 +18,10 @@ let isCounting;
 let playerChoice;
 let botChoice;
 let timerId;
+let forceHand;
+let forceHandCooldown;
+let score;
+let multiplier;
 
 // GAME CONTROL
 const endGame = () => {
@@ -41,6 +42,7 @@ const endGame = () => {
 const startGame = () => {
   GAME_STAGE = STAGE_ACTIVE;
   resetStats();
+  gameStartSound.play()
   newRound();
   header.classList.add('header--mini');
   headerH1.classList.add('header__h1--mini');
@@ -55,33 +57,35 @@ const toggleGame = () => {
 };
 
 const newRound = () => {
+  console.log(GAME_STAGE)
   if (GAME_STAGE === STAGE_INACTIVE) {
     return;
   }
+  GAME_STAGE = STAGE_ACTIVE
   resetImgs();
   countdown();
 };
 
 const resetStats = () => {
   PLAYER_LIVES = 3;
+  score = 0;
+  multiplier = 1;
+  forceHand = false
+  forceHandCooldown = false
+  scoreSpan.textContent = score;
+  multiplierSpan.textContent = multiplier;
   playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
-  healthIcons.forEach(el => el.classList.remove('hidden'))
+  healthIcons.forEach(el => {
+    if (el.id !== 'penalty-icon') {
+      el.classList.remove('hidden')
+    }
+  })
+  penaltyIcon.classList.add('hidden')
 };
 
 const resetImgs = () => {
   playerImg.src = `assets/images/rock.png`;
   botImg.src = `assets/images/rock.png`;
-};
-
-// GAME EVENTS
-const playerWin = () => {
-  winSound.play();
-  increaseLife();
-};
-
-const playerLoss = () => {
-  loseSound.play();
-  decreaseLife();
 };
 
 const increaseLife = () => {
@@ -90,32 +94,53 @@ const increaseLife = () => {
   }
   healthIcons[PLAYER_LIVES].classList.remove('hidden')
   PLAYER_LIVES++;
-  changeHpBar('add');
-  
+  playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES - 1}`);
+  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
 };
 
 const decreaseLife = () => {
   if (PLAYER_LIVES === 1) {
+    gameOverSound.play()
     endGame();
   } else {
     healthIcons[PLAYER_LIVES-1].classList.add('hidden')
     PLAYER_LIVES--;
-    changeHpBar('sub');
-  }
-};
-
-const changeHpBar = (count) => {
-  if (count === 'add') {
-    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES - 1}`);
-  } else {
     playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES + 1}`);
+    playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
   }
-  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
 };
 
-const draw = () => {
-  drawSound.play();
-};
+
+const endRound = (outcome) => {
+  if (outcome === 'win') {
+    let scoreIncrement;
+    winSound.play();
+    increaseLife()
+    if (multiplier > 1) {
+      scoreIncrement = 2 * multiplier
+      score += scoreIncrement
+    } else {
+      scoreIncrement = 2
+      score += scoreIncrement
+      multiplier++;
+    }
+  } else if (outcome === 'loss') {
+    loseSound.play()
+    decreaseLife()
+    multiplier = 1;
+  } else {
+    drawSound.play()
+    if (multiplier > 1) {
+      multiplier--;
+    }
+  }
+  scoreSpan.textContent = score;
+  multiplierSpan.textContent = multiplier;
+  if (GAME_STAGE !== STAGE_INACTIVE) {
+    setTimeout(newRound, 1000)
+  }
+
+}
 
 const flare = () => {
   cardImgs.forEach((el) =>
@@ -128,45 +153,37 @@ const flare = () => {
   }, 260);
 };
 
-
-
-
-
 const assessChoices = () => {
   if (!playerChoice) {
-    playerChoice = ROCK_CHOICE;
+    playerChoice = randomChoice();
   }
 
-  botChoice = randomChoice();
-
+  if (!botChoice) {
+    botChoice = randomChoice();
+  }
+  
   playerImg.src = `assets/images/${playerChoice.toLowerCase()}.png`;
   botImg.src = `assets/images/${botChoice.toLowerCase()}.png`;
-
+  GAME_STAGE = STAGE_SHOWDOWN
   if (
     (playerChoice === ROCK_CHOICE && botChoice === SCISSORS_CHOICE) ||
     (playerChoice === SCISSORS_CHOICE && botChoice === PAPER_CHOICE) ||
     (playerChoice === PAPER_CHOICE && botChoice === ROCK_CHOICE)
   ) {
-    playerWin();
+    endRound('win');
   } else if (
     (playerChoice === ROCK_CHOICE && botChoice === PAPER_CHOICE) ||
     (playerChoice === PAPER_CHOICE && botChoice === SCISSORS_CHOICE) ||
     (playerChoice === SCISSORS_CHOICE && botChoice === ROCK_CHOICE)
   ) {
-    playerLoss();
+    endRound('loss');
   } else {
-    draw();
+    endRound('draw');
   }
   playerChoice = undefined;
+  botChoice = undefined;
+  forceHandCooldown = false;
 };
-
-
-
-
-
-
-
-
 
 const randomChoice = () => {
   const randomInt = Math.random();
@@ -181,7 +198,7 @@ const randomChoice = () => {
 };
 
 const countdown = () => {
-  if (GAME_STAGE === STAGE_INACTIVE || isCounting) {
+  if (GAME_STAGE === STAGE_COUNTDOWN || isCounting) {
     return;
   }
 
@@ -208,32 +225,31 @@ const countdown = () => {
 
 const castChoice = (choice) => {
   if (GAME_STAGE === STAGE_COUNTDOWN) {
-    console.log('Player will be penalyzed!');
+    if (!forceHand && !forceHandCooldown) {
+      penaltyIcon.classList.remove('hidden')
+      forceHand = true
+      forceHandCooldown = true
+      forceHandSound.play()
+    } else {
+      forceHand = false
+      penaltyIcon.classList.add('hidden')
+      decreaseLife()
+      decreaseLife()
+      forceHandDamageSound.play()
+    }
+    botChoice = choice
   } else if (GAME_STAGE === STAGE_CHOICE) {
     playerChoice = choice;
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
 document.addEventListener('keydown', (key) => {
-  if (key.key === 'r') {
+  if (key.key === 'a') {
     castChoice(ROCK_CHOICE);
-  } else if (key.key === 'p') {
-    castChoice(PAPER_CHOICE);
   } else if (key.key === 's') {
+    castChoice(PAPER_CHOICE);
+  } else if (key.key === 'd') {
     castChoice(SCISSORS_CHOICE);
-  } else if (key.code === 'Space') {
-    newRound();
   } else if (key.key === 'Enter') {
     toggleGame();
   }
