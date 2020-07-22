@@ -1,7 +1,10 @@
 /**
- * * INCORPORATE ERRORS AND LIVES
+ * * INFO MODAL
+ * * SCORE
+ * * SCORE MULTIPLIER
  * * GAME OVER
  */
+
 const STAGE_INACTIVE = 'INACTIVE';
 const STAGE_ACTIVE = 'ACTIVE';
 const STAGE_COUNTDOWN = 'COUNTDOWN';
@@ -20,96 +23,95 @@ let botChoice;
 let timerId;
 
 // GAME CONTROL
-
-const toggleGame = () => {
-    header.classList.toggle('header--mini');
-    headerH1.classList.toggle('header__h1--mini');
-    if (GAME_STAGE === STAGE_INACTIVE) {
-        GAME_STAGE = STAGE_ACTIVE;
-        resetStats();
-        newRound();
-    } else {
-        endGame();
-    }
-};
-
 const endGame = () => {
+  if (GAME_STAGE !== STAGE_INACTIVE) {
     GAME_STAGE = STAGE_INACTIVE;
-    resetImgs();
 
     if (timerId) {
-        clearInterval(timerId)
-        isCounting = false
+      clearInterval(timerId);
+      isCounting = false;
     }
 
-    if (PLAYER_LIVES === 3) {
-        playerHp.classList.remove('player-section__hp--3');
-    } else if (PLAYER_LIVES === 2) {
-        playerHp.classList.remove('player-section__hp--2');
-    } else {
-        playerHp.classList.remove('player-section__hp--1');
-    }
+    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES}`);
+    header.classList.remove('header--mini');
+    headerH1.classList.remove('header__h1--mini');
+  }
 };
 
-  
+const startGame = () => {
+  GAME_STAGE = STAGE_ACTIVE;
+  resetStats();
+  newRound();
+  header.classList.add('header--mini');
+  headerH1.classList.add('header__h1--mini');
+}
+
+const toggleGame = () => {
+  if (GAME_STAGE === STAGE_INACTIVE) {
+    startGame()
+  } else {
+    endGame();
+  }
+};
+
 const newRound = () => {
-    if (GAME_STAGE === STAGE_INACTIVE) {
-        return;
-    }
-    resetImgs();
-    countdown();
+  if (GAME_STAGE === STAGE_INACTIVE) {
+    return;
+  }
+  resetImgs();
+  countdown();
 };
-  
-  const resetStats = () => {
-    PLAYER_LIVES = 3;
-    playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
-  };
-  
-  const resetImgs = () => {
-    playerImg.src = `assets/images/rock.png`;
-    botImg.src = `assets/images/rock.png`;
-  };
+
+const resetStats = () => {
+  PLAYER_LIVES = 3;
+  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
+  healthIcons.forEach(el => el.classList.remove('hidden'))
+};
+
+const resetImgs = () => {
+  playerImg.src = `assets/images/rock.png`;
+  botImg.src = `assets/images/rock.png`;
+};
 
 // GAME EVENTS
 const playerWin = () => {
   winSound.play();
-  increaseLife()
+  increaseLife();
 };
 
 const playerLoss = () => {
-    loseSound.play();
-    decreaseLife();
-  };
+  loseSound.play();
+  decreaseLife();
+};
 
 const increaseLife = () => {
-    if (PLAYER_LIVES === 3) {
-        return
-    }
-
-    PLAYER_LIVES++;
-    changeHpBar('add')
-}
+  if (PLAYER_LIVES === 3) {
+    return;
+  }
+  healthIcons[PLAYER_LIVES].classList.remove('hidden')
+  PLAYER_LIVES++;
+  changeHpBar('add');
+  
+};
 
 const decreaseLife = () => {
-    if (PLAYER_LIVES === 1) {
-        gameOver()
-    } else {
-        PLAYER_LIVES--;
-        changeHpBar('sub')
-    }
-}
+  if (PLAYER_LIVES === 1) {
+    endGame();
+  } else {
+    healthIcons[PLAYER_LIVES-1].classList.add('hidden')
+    PLAYER_LIVES--;
+    changeHpBar('sub');
+  }
+};
 
 const changeHpBar = (count) => {
-    if (count === 'add') {
-        playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES - 1}`);
-    } else {
-        playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES + 1}`);
-    }
-    playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`)
-}
-
-
-
+  if (count === 'add') {
+    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES - 1}`);
+  } else {
+    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES + 1}`);
+  }
+  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
+};
 
 const draw = () => {
   drawSound.play();
@@ -125,6 +127,11 @@ const flare = () => {
     );
   }, 260);
 };
+
+
+
+
+
 const assessChoices = () => {
   if (!playerChoice) {
     playerChoice = ROCK_CHOICE;
@@ -152,6 +159,14 @@ const assessChoices = () => {
   }
   playerChoice = undefined;
 };
+
+
+
+
+
+
+
+
 
 const randomChoice = () => {
   const randomInt = Math.random();
@@ -188,7 +203,7 @@ const countdown = () => {
       assessChoices();
       clearInterval(timerId);
     }
-  }, 1000);
+  }, 500);
 };
 
 const castChoice = (choice) => {
@@ -198,6 +213,15 @@ const castChoice = (choice) => {
     playerChoice = choice;
   }
 };
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,8 @@
 
 // Load UI
 cardImgs = Array.prototype.slice.call(document.querySelectorAll('.player-card__inner__img'))
+healthIcons = Array.prototype.slice.call(document.querySelectorAll('.health-block__icon'))
+
 playerHp = document.querySelector('.player-section__hp')
 playerImg = cardImgs[0]
 botImg = cardImgs[1]
