@@ -1,256 +1,192 @@
+const DRAW_MP_BONUS = 10;
+const WIN_MP_BONUS = 5;
+const STREAK_MP_BONUS = 25;
+let PLAYER_POWER = 10;
+let PLAYER_HEALTH;
+let COMPUTER_HEALTH;
+let PLAYER_MANA;
+let COMPUTER_MANA;
+let COMPUTER_POWER = (Math.random() + 1 ) * 10;
+let GAME_STATUS = 'INACTIVE';
+
 /**
- * * GAME OVER
+ * TODO: CREATE GAME OVER SCREEN
+ * TODO: ADD FORCE HAND AND FORCE HAND CONSEQUENCE FUNCTION
+ * TODO: CREATE POWER ABILITIES
+ * TODO: TWEAK UI
+ * TODO: ADD UI SOUNDS
  */
 
-const STAGE_INACTIVE = 'INACTIVE';
-const STAGE_ACTIVE = 'ACTIVE';
-const STAGE_COUNTDOWN = 'COUNTDOWN';
-const STAGE_CHOICE = 'CHOICE';
-const STAGE_SHOWDOWN = 'SHOWDOWN';
-const ROCK_CHOICE = 'ROCK';
-const PAPER_CHOICE = 'PAPER';
-const SCISSORS_CHOICE = 'SCISSORS';
+let playerGesture;
+let botGesture;
+let lastWin;
 
-let GAME_STAGE = 'INACTIVE';
-let PLAYER_LIVES = 0;
-let PLAYER_ERRORS = 0;
-let isCounting;
-let playerChoice;
-let botChoice;
-let timerId;
-let forceHand;
-let forceHandCooldown;
-let score;
-let multiplier;
 
-// GAME CONTROL
-const endGame = () => {
-  if (GAME_STAGE !== STAGE_INACTIVE) {
-    GAME_STAGE = STAGE_INACTIVE;
-
-    if (timerId) {
-      clearInterval(timerId);
-      isCounting = false;
-    }
-
-    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES}`);
-    header.classList.remove('header--mini');
-    headerH1.classList.remove('header__h1--mini');
+const generateBotGesture = () => {
+  const index = Math.random()
+  if (index < 0.33) {
+    return 0
+  } else if (index >= 0.33 && index < 0.66) {
+    return 1
+  } else {
+    return 2
   }
-};
-
-const startGame = () => {
-  GAME_STAGE = STAGE_ACTIVE;
-  resetStats();
-  gameStartSound.play()
-  newRound();
-  header.classList.add('header--mini');
-  headerH1.classList.add('header__h1--mini');
 }
 
-const toggleGame = () => {
-  if (GAME_STAGE === STAGE_INACTIVE) {
-    startGame()
-  } else {
-    endGame();
+const checkGestures = () => {
+  if (!playerGesture && playerGesture !== 0) {
+    console.log('player lost a point')
+    return
   }
-};
+  const botGesture = generateBotGesture()
+
+  changeGestureImages(playerGesture, botGesture)
+
+  if (playerGesture === 0 && botGesture === 2 || playerGesture === 1 && botGesture === 0 || playerGesture === 2 && botGesture === 1) {
+    roundOutcome('win')
+  } else if (playerGesture === 0 && botGesture === 1 || playerGesture === 1 && botGesture === 2 || playerGesture === 2 && botGesture === 0) {
+    roundOutcome('loss')
+  } else {
+    roundOutcome('draw')
+  }
+}
+
+const roundOutcome = (outcome) => {
+  if (outcome === 'win') {
+    COMPUTER_HEALTH -= PLAYER_POWER;
+    updateStats('bot', 'hp', COMPUTER_HEALTH)
+
+    if (COMPUTER_HEALTH <= 0) {
+      console.log('Game over! Player wins!')
+      return
+    }
+    if (lastWin === 'player') {
+      increaseMana('player', STREAK_MP_BONUS)
+    } else {
+      increaseMana('player', WIN_MP_BONUS)
+    }
+    lastWin = 'player'
+    playSound('win')
+  } else if (outcome === 'loss') {
+    PLAYER_HEALTH -= COMPUTER_POWER;
+    updateStats('player', 'hp', PLAYER_HEALTH)
+
+    if (PLAYER_HEALTH <= 0) {
+      console.log('Game over! Player wins!')
+      return
+    }
+    if (lastWin === 'computer') {
+      increaseMana('computer', STREAK_MP_BONUS)
+    } else {
+      increaseMana('computer', WIN_MP_BONUS)
+    }
+    lastWin = 'computer'
+  } else {
+    increaseMana('player', DRAW_MP_BONUS)
+    increaseMana('computer', DRAW_MP_BONUS)
+    lastWin = undefined;
+  }
+  newRound()
+}
+
+const toggleGameStatus = () => {
+  toggleGameUi()
+  if (GAME_STATUS === 'INACTIVE') {
+    // playSound('startGame')
+    GAME_STATUS = 'ACTIVE'
+    resetStats()
+    setTimeout(cardTick, 500)
+    return
+  }
+  GAME_STATUS = 'INACTIVE'
+  playSound('endGame')
+  updateStats('player', 'hp', 0)
+  updateStats('bot', 'hp', 0)
+  updateStats('bot', 'mp', 0)
+  updateStats('player', 'mp', 0)
+  clearInterval(gestureTimer)
+}
 
 const newRound = () => {
-  console.log(GAME_STAGE)
-  if (GAME_STAGE === STAGE_INACTIVE) {
-    return;
-  }
-  GAME_STAGE = STAGE_ACTIVE
-  resetImgs();
-  countdown();
-};
+  playerGesture = undefined
+  botGesture = undefined
+  setTimeout(cardTick, 500)
+}
 
-const resetStats = () => {
-  PLAYER_LIVES = 3;
-  score = 0;
-  multiplier = 1;
-  forceHand = false
-  forceHandCooldown = false
-  scoreSpan.textContent = score;
-  multiplierSpan.textContent = multiplier;
-  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
-  healthIcons.forEach(el => {
-    if (el.id !== 'penalty-icon') {
-      el.classList.remove('hidden')
-    }
-  })
-  penaltyIcon.classList.add('hidden')
-};
-
-const resetImgs = () => {
-  playerImg.src = `assets/images/rock.png`;
-  botImg.src = `assets/images/rock.png`;
-};
-
-const increaseLife = () => {
-  if (PLAYER_LIVES === 3) {
-    return;
-  }
-  healthIcons[PLAYER_LIVES].classList.remove('hidden')
-  PLAYER_LIVES++;
-  playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES - 1}`);
-  playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
-};
-
-const decreaseLife = () => {
-  if (PLAYER_LIVES === 1) {
-    gameOverSound.play()
-    endGame();
-  } else {
-    healthIcons[PLAYER_LIVES-1].classList.add('hidden')
-    PLAYER_LIVES--;
-    playerHp.classList.remove(`player-section__hp--${PLAYER_LIVES + 1}`);
-    playerHp.classList.add(`player-section__hp--${PLAYER_LIVES}`);
-  }
-};
-
-
-const endRound = (outcome) => {
-  if (outcome === 'win') {
-    let scoreIncrement;
-    winSound.play();
-    increaseLife()
-    if (multiplier > 1) {
-      scoreIncrement = 2 * multiplier
-      score += scoreIncrement
+const cardTick = () => {
+  let index = 0;
+  GAME_STATUS = 'TICK'
+  changeGestureImages(0, 0)
+  gestureTimer = setInterval(() => {
+    if (index < 3) {
+      if (index === 2) {
+        GAME_STATUS = 'C_TICK'
+      }
+      playSound('tick');
+      animateCardTick()
+      index++;
     } else {
-      scoreIncrement = 2
-      score += scoreIncrement
-      multiplier++;
+      GAME_STATUS = 'SHOWDOWN'
+      checkGestures()
+      clearInterval(gestureTimer);
     }
-  } else if (outcome === 'loss') {
-    loseSound.play()
-    decreaseLife()
-    multiplier = 1;
-  } else {
-    drawSound.play()
-    if (multiplier > 1) {
-      multiplier--;
-    }
+  }, 1000);
+};
+
+const playerChoice = (choice) => {
+  if (GAME_STATUS === 'TICK') {
+    console.log(`forced ${choice}`)
+  } else if (GAME_STATUS === 'C_TICK') {
+    console.log(`selected ${choice}`)
+    playerGesture = choice
   }
-  scoreSpan.textContent = score;
-  multiplierSpan.textContent = multiplier;
-  if (GAME_STAGE !== STAGE_INACTIVE) {
-    setTimeout(newRound, 1000)
-  }
+}
+
+const inflictDamage = (target) => {
 
 }
 
-const flare = () => {
-  cardImgs.forEach((el) =>
-    el.classList.toggle('player-card__inner__img--flare')
-  );
-  setTimeout(() => {
-    cardImgs.forEach((el) =>
-      el.classList.toggle('player-card__inner__img--flare')
-    );
-  }, 260);
-};
+const resetStats = () => {
+  PLAYER_HEALTH = 100;
+  COMPUTER_HEALTH = 100;
+  PLAYER_MANA = 0;
+  COMPUTER_MANA = 0;
+  updateStats('player', 'hp', PLAYER_HEALTH)
+  updateStats('bot', 'hp', COMPUTER_HEALTH)
+  updateStats('bot', 'mp', COMPUTER_MANA)
+  updateStats('player', 'mp', PLAYER_MANA)
+}
 
-const assessChoices = () => {
-  if (!playerChoice) {
-    playerChoice = randomChoice();
-  }
-
-  if (!botChoice) {
-    botChoice = randomChoice();
-  }
-  
-  playerImg.src = `assets/images/${playerChoice.toLowerCase()}.png`;
-  botImg.src = `assets/images/${botChoice.toLowerCase()}.png`;
-  GAME_STAGE = STAGE_SHOWDOWN
-  if (
-    (playerChoice === ROCK_CHOICE && botChoice === SCISSORS_CHOICE) ||
-    (playerChoice === SCISSORS_CHOICE && botChoice === PAPER_CHOICE) ||
-    (playerChoice === PAPER_CHOICE && botChoice === ROCK_CHOICE)
-  ) {
-    endRound('win');
-  } else if (
-    (playerChoice === ROCK_CHOICE && botChoice === PAPER_CHOICE) ||
-    (playerChoice === PAPER_CHOICE && botChoice === SCISSORS_CHOICE) ||
-    (playerChoice === SCISSORS_CHOICE && botChoice === ROCK_CHOICE)
-  ) {
-    endRound('loss');
-  } else {
-    endRound('draw');
-  }
-  playerChoice = undefined;
-  botChoice = undefined;
-  forceHandCooldown = false;
-};
-
-const randomChoice = () => {
-  const randomInt = Math.random();
-
-  if (randomInt < 0.33) {
-    return ROCK_CHOICE;
-  } else if (randomInt > 0.33 && randomInt < 0.66) {
-    return PAPER_CHOICE;
-  } else {
-    return SCISSORS_CHOICE;
-  }
-};
-
-const countdown = () => {
-  if (GAME_STAGE === STAGE_COUNTDOWN || isCounting) {
-    return;
-  }
-
-  GAME_STAGE = STAGE_COUNTDOWN;
-
-  isCounting = true;
-
-  let index = 3;
-  timerId = setInterval(() => {
-    if (index > 0) {
-      tickSound.play();
-      if (index === 1) {
-        GAME_STAGE = STAGE_CHOICE;
-      }
-      index--;
-      flare();
+const increaseMana = (target, amount) => {
+  if (target === 'player' && PLAYER_MANA < 100) {
+    const potentialMana = PLAYER_MANA += amount;
+    if (potentialMana <= 100) {
+      PLAYER_MANA = potentialMana;
     } else {
-      isCounting = false;
-      assessChoices();
-      clearInterval(timerId);
+      PLAYER_MANA = 100
     }
-  }, 500);
-};
-
-const castChoice = (choice) => {
-  if (GAME_STAGE === STAGE_COUNTDOWN) {
-    if (!forceHand && !forceHandCooldown) {
-      penaltyIcon.classList.remove('hidden')
-      forceHand = true
-      forceHandCooldown = true
-      forceHandSound.play()
-    } else {
-      forceHand = false
-      penaltyIcon.classList.add('hidden')
-      decreaseLife()
-      decreaseLife()
-      forceHandDamageSound.play()
-    }
-    botChoice = choice
-  } else if (GAME_STAGE === STAGE_CHOICE) {
-    playerChoice = choice;
+    updateStats('player', 'mp', PLAYER_MANA)
+    return
   }
-};
 
-document.addEventListener('keydown', (key) => {
-  if (key.key === 'a') {
-    castChoice(ROCK_CHOICE);
-  } else if (key.key === 's') {
-    castChoice(PAPER_CHOICE);
-  } else if (key.key === 'd') {
-    castChoice(SCISSORS_CHOICE);
-  } else if (key.key === 'Enter') {
-    toggleGame();
+  const potentialMana = COMPUTER_MANA += amount;
+  if (potentialMana <= 100) {
+    COMPUTER_MANA = potentialMana
+  } else {
+    COMPUTER_MANA = 100
   }
-});
+  updateStats('bot', 'mp', COMPUTER_MANA)
+}
+
+startGameBtn.addEventListener('click', toggleGameStatus)
+endGameBtn.addEventListener('click', toggleGameStatus)
+
+rockBtn.addEventListener('click', () => {
+  playerChoice(0)
+})
+paperBtn.addEventListener('click', () => {
+  playerChoice(1)
+})
+scissorsBtn.addEventListener('click', () => {
+  playerChoice(2)
+})

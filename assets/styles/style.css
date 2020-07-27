@@ -14,6 +14,8 @@ html {
 
 body {
     position: relative;
+    background: #f1f2f6;
+    overflow: hidden;
 }
 
 .header {
@@ -22,32 +24,30 @@ body {
     left: 50%;
     transform: translate(-50%, -5%);
     z-index: 3;
-    transition: all 0.25s ease;
-}
-
-.header--mini {
-    top: 3%;
-    left: 85% !important;
+    font-size: 2rem;
+    transition: all 0.5s ease;
 }
 
 .header__h1 {
     text-transform: uppercase;
-    font-size: 2rem;
+    font-size: inherit;
     font-weight: 300;
-    transition: all 0.25s ease;
-}
-
-.header__h1--mini {
-    font-size: 1.2rem;
 }
 
 .header__h1::after {
     content: "";
     display: block;
     width: 60%;
-    border-bottom: 3px solid #ff7f50;
+    border-bottom: 3px solid #ff6348;
     margin: 5px auto 0;
 }
+
+.header--mini {
+    top: 3%;
+    left: 85%;
+    font-size: 1rem;
+}
+
 .content {
     width: 100%;
     height: 100vh;
@@ -69,28 +69,21 @@ body {
     width: 100%;
 }
 
-.player-section__hp {
+.player-section__overlay {
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
     height: 0;
-    transition: all 0.25s ease;
-}
-.player-section__hp--3 {
-    height: 100%;
-    background-color: #2ed573;
+    background: #ff6348;
+    transition: all 0.2s ease;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.3);
 }
 
-.player-section__hp--2 {
+.player-section__overlay--extended {
     height: 100%;
-    background-color: #eccc68;
 }
 
-.player-section__hp--1 {
-    height: 100%;
-    background-color: #ff4757;
-}
 .player-section__name {
     position: absolute;
     display: block;
@@ -104,21 +97,31 @@ body {
 .player-card {
     display: block;
     position: absolute;
-    top: 65%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -65%);
     width: 250px;
     height: 300px;
     background: #fff;
     border: 1px solid lightgrey;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    transition: all 0.25s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.15s ease;
 }
 
-.player-card:hover {
-    top: 64.8%;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+.animated-float {
+    animation-name: float;
+    animation-duration: 3.5s;
+    animation-delay: 0;
+    animation-iteration-count: infinite;
 }
+
+.animated-float--delayed {
+    animation-name: float;
+    animation-duration: 3.5s;
+    animation-delay: 1.5s;
+    animation-iteration-count: infinite;
+}
+
 
 .player-card__inner {
     position: relative;
@@ -141,23 +144,234 @@ body {
     top: 55%;
 }
 
-.health-block {
+.powers-block {
     position: absolute;
     top: 2%;
     left: 2%;
+    z-index: 4;
 }
-.health-block__icon {
-    width: 30px;
-}
-.health-block__icon:not(:first-of-type) {
-    margin-left: 10px;
+.powers-block__icon {
+    width: 25px;
+    display: block;
 }
 
-.score-block {
+#penalty-icon {
+    width: 35px;
+    height: 30px;
     position: absolute;
-    bottom: 2%;
-    left: 2%;
+    right: 2%;
+    top: 2%;
+    z-index: 4;
 }
+.powers-block__icon:not(:last-of-type) {
+    margin-bottom: 20px;
+}
+
+.vital-bar {
+    height: 30px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.vital-bar__hp, .vital-bar__mp {
+    position: relative;
+    height: 50%;
+    width: 100%;
+}
+
+.vital-bar__hp--outer, .vital-bar__hp--inner, .vital-bar__mp--outer, .vital-bar__mp--inner {
+    height: 100%;
+    width: 100%;
+}
+
+.vital-bar__mp--outer, .vital-bar__hp--outer {
+    background: lightgrey;
+}
+
+.vital-bar__hp--inner {
+    width: 1%;
+    background: #b8e994;
+    transition: all 0.25s ease;
+}
+
+.vital-bar__mp--inner {
+    background: #82ccdd;
+    transition: all 0.25s ease;
+    width: 1%;
+}
+
+.player-section__name--light {
+    color: #fff;
+}
+
+.control-section {
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    width: 35%;
+    transform: translateX(-50%);
+}
+
+.control-section__block {
+    position: relative;
+    display: inline-block;
+    background: lightgrey;
+    width: 60px;
+    height: 60px;
+    margin: 0 2.7%;
+    border: 1px solid lightgrey;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.4);
+    transition: all 0.25s ease;
+}
+
+.control-section__block__img {
+    max-width: 100%;
+    transform: scaleX(-1);
+}
+
+.control-section__block:hover {
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.8);
+}
+
+.control-section__block__key {
+    position: absolute;
+    bottom: 0px;
+    right: 3px;
+}
+
+.main-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    transition: all 0.2s ease;
+}
+
+.side-menu {
+    position: absolute;
+    right: -4%;
+    bottom: 1%;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.main-menu__list, .side-menu__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+}
+
+.main-menu__list {
+    text-align: center;
+}
+
+.side-menu__list {
+    text-align: right;
+}
+
+.main-menu__list__option, .side-menu__list__option {
+    text-transform: uppercase;
+    transition: all 0.25s ease;
+}
+
+.main-menu__list__option {
+    font-size: 1.3rem;
+    padding: 0.5rem;
+}
+
+.side-menu__list__option {
+    font-size: 1.1rem;
+    padding: 0.3rem;
+    
+}
+.main-menu__list__option:hover {
+    font-size: 1.8rem;
+    color: #ff6348;
+    cursor: pointer;
+}
+
+.side-menu__list__option:hover {
+    margin-right: 5px;
+    color: #ff6348;
+    cursor: pointer;
+}
+
+.side-menu--extended {
+    right: 1%;
+    opacity: 1;
+}
+
+.shake-card-animation {
+    animation-name: shakeCard;
+    animation-duration: 0.3s;
+    animation-iteration-count: initial;
+}
+
+.hidden-menu {
+    top: 48%;
+    opacity: 0;
+    animation-name: disappear;
+    animation-duration: 1s;
+}
+
 .hidden {
     display: none;
+}
+
+@keyframes float {
+    0% {
+        top: 60%
+    }
+
+    50% {
+        top: 58%;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    100% {
+        top: 60%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+}
+
+@keyframes shakeCard {
+    0% {
+
+    }
+
+    15% {
+        transform: rotate(-5deg) translate(-50%, -65%);
+    }
+
+    30% {
+        transform: rotate(5deg) translate(-50%, -65%);
+    }
+
+    50% {
+        transform: rotate(-5deg) translate(-50%, -65%);
+    }
+
+    75% {
+        transform: rotate(5deg) translate(-50%, -65%);
+    }
+    
+    100% {
+        transform: rotate(0deg) translate(-50%, -65%);
+    }
+}
+
+@keyframes disappear {
+    0% {
+        display: block;
+    }
+
+    100% {
+        display: none;
+    }
 }

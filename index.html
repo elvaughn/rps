@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles/style.css">
     <script src="assets/scripts/interface.js" defer></script>
+    <script src="assets/scripts/values.js"></script>
     <script src="assets/scripts/app.js" defer></script>
 </head>
 <body>
@@ -16,35 +17,82 @@
     <div class="content">
         <div class="content__column">
             <div class="player-section">
-                <div class="player-section__hp player-section__hp--dark"></div>
-                <h3 class="player-section__name">Player</h3>
-                <div class="player-card">
+                <div class="powers-block hidden">
+                    <img class="powers-block__icon" src="assets/images/power-0.png" alt="">
+                    <img class="powers-block__icon" src="assets/images/power-1.png" alt="">
+                    <img class="powers-block__icon" src="assets/images/power-2.png" alt="">
+                    <img class="powers-block__icon" src="assets/images/power-3.png" alt="">
+                </div>
+                <img id="penalty-icon" class="hidden" src="assets/images/warning-icon.png" alt="">
+                <div class="player-section__overlay"></div>
+                <h3 id="playerName" class="player-section__name">PLAYER</h3>
+                <div class="player-card animated-float">
                     <div class="player-card__inner">
-                        <img class="player-card__inner__img player-card__inner__img--flipped" src="assets/images/rock.png" alt="">
+                        <img class="player-card__inner__img player-card__inner__img--flipped" src="assets/images/gestureImg-0.png" alt="">
+                        <div class="vital-bar">
+                            <div class="vital-bar__hp">
+                                <div class="vital-bar__hp--outer">
+                                    <div class="vital-bar__hp--inner"></div>
+                                </div>
+                            </div>
+                            <div class="vital-bar__mp">
+                                <div class="vital-bar__mp--outer">
+                                    <div class="vital-bar__mp--inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-section hidden-menu">
+                    <div id="rock-choice" class="control-section__block">
+                        <img src="assets/images/gestureImg-0.png" alt="" class="control-section__block__img">
+                        <h5 class="control-section__block__key">A</h5>
+                    </div>
+                    <div id="paper-choice" class="control-section__block">
+                        <img src="assets/images/gestureImg-1.png" alt="" class="control-section__block__img">
+                        <h5 class="control-section__block__key">S</h5>
+                    </div>
+                    <div id="scissors-choice" class="control-section__block">
+                        <img src="assets/images/gestureImg-2.png" alt="" class="control-section__block__img">
+                        <h5 class="control-section__block__key">D</h5>
                     </div>
                 </div>
             </div>
         </div>
         <div class="content__column">
             <div class="player-section">
-                <div class="player-section__hp player-section__hp--dark"></div>
-                <h3 class="player-section__name">Computer</h3>
-                <div class="player-card">
+                <h3 id="enemyName" class="player-section__name"></h3>
+                <div class="player-card animated-float--delayed">
                     <div class="player-card__inner">
-                        <img class="player-card__inner__img" src="assets/images/rock.png" alt="">
+                        <img class="player-card__inner__img" src="assets/images/gestureImg-0.png" alt="">
+                        <div class="vital-bar">
+                            <div class="vital-bar__hp">
+                                <div class="vital-bar__hp--outer">
+                                    <div class="vital-bar__hp--inner"></div>
+                                </div>
+                            </div>
+                            <div class="vital-bar__mp">
+                                <div class="vital-bar__mp--outer">
+                                    <div class="vital-bar__mp--inner"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="health-block">
-        <img class="health-block__icon" src="assets/images/health-icon.svg" alt="">
-        <img class="health-block__icon" src="assets/images/health-icon.svg" alt="">
-        <img class="health-block__icon" src="assets/images/health-icon.svg" alt="">
-        <img id="penalty-icon" class="health-block__icon hidden" src="assets/images/penalty-shield.svg" alt="">
+    <div class="main-menu">
+        <ul class="main-menu__list">
+            <li id="newGame" class="main-menu__list__option">New Game</li>
+            <li id="info-main" class="main-menu__list__option">Instructions</li>
+        </ul>
     </div>
-    <div class="score-block">
-        <h4 class="score-block__content">SCORE: <span id="score"></span> - MULTIPLIER: <span id="multiplier"></span></h4>
+    <div class="side-menu">
+        <ul class="side-menu__list">
+            <li id="endGame" class="side-menu__list__option">End Game</li>
+            <li id="info-side" class="side-menu__list__option">Instructions</li>
+        </ul>
     </div>
 
 </body>
